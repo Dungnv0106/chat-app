@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import { Row, Col, Collapse, Button, Avatar, Typography } from "antd";
 import { styled } from "styled-components";
-import { auth } from "../../firebase/config";
+import { auth, db } from "../../firebase/config";
+import { AuthContext } from "../../Context/AuthProvider";
 // console.log(auth) ;
 // ghost: trong suốt
 const WrapperStyled = styled.div`
@@ -15,21 +16,27 @@ const WrapperStyled = styled.div`
     color: white;
     margin-left: 5px;
   }
- 
 `;
 
 const UserInfo = () => {
-  // const signOut = () => {
-  //   // console.log('hihi');
-  //   auth.signOut();
-  // }
+
+  const data = useContext(AuthContext);
+  // console.log(data);
+  const {user : {
+    displayName, 
+    photoURL,
+  }} = data;
+
+
   return (
     <WrapperStyled>
       <div>
-        <Avatar>ABC</Avatar>
-        <Typography.Text className="username">ABC</Typography.Text>
+        <Avatar src={photoURL}>{photoURL ? "" : displayName?.charAt(0).toUpperCase()}</Avatar>
+        <Typography.Text className="username">{displayName}</Typography.Text>
       </div>
-      <Button ghost className="log-out" onClick={(() => auth.signOut())}>Log out</Button>
+      <Button ghost className="log-out" onClick={() => auth.signOut()}>
+        Log out
+      </Button>
     </WrapperStyled>
   );
 };

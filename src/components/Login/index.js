@@ -14,6 +14,7 @@ const Login = () => {
     const data = await auth.signInWithPopup(fbProvider);
     // console.log( data );
     const { additionalUserInfo, user } = data;
+    // console.log(additionalUserInfo);
     // Kiểm tra xem có phải là người dùng mới hay không.
     if (additionalUserInfo?.isNewUser) {
       addDocument("users", {

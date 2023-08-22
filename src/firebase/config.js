@@ -28,5 +28,12 @@ firebase.analytics();
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// Cấu hình firebase ở dưới local
+auth.useEmulator('http://localhost:9099');
+if(window.location.hostname == 'localhost') {
+  db.useEmulator('localhost', '8080');
+}
+
+
 export { auth, db };
 export default firebase;

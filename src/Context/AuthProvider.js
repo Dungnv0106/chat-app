@@ -14,14 +14,14 @@ const AuthProvider = ({ children }) => {
     // Trạng thái khi đăng nhập thành công: Ktra xem ng dùng đã đăng nhập thành công chưa
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log({ user });
+      // console.log({ user });
       // Đăng nhập thành công thì điều hướng về trang chủ với hook useHistory
       if (user) {
         const { phoneNumber, displayName, photoURL, uid, email } = user;
         setUser({
           phoneNumber: phoneNumber,
           displayName: displayName,
-          phoneNumberUrl: photoURL,
+          photoURL: photoURL,
           uid: uid,
           email: email,
         });
