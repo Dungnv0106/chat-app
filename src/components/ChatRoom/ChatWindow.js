@@ -1,9 +1,12 @@
-import React, { useContext } from "react";
+import React, { useContext, useMemo, useRef, useState, useEffect } from "react";
 import styled from "styled-components";
-import { Button, Avatar, Tooltip, Input, Form, Alert } from "antd";
+import { Button, Avatar, Tooltip, Input, Form, Alert, message } from "antd";
 import { UserAddOutlined } from "@ant-design/icons";
 import Message from "./Message";
 import { RoomContext } from "../../Context/RoomProvider";
+import { addDocument } from "../../firebase/services";
+import { AuthContext } from "../../Context/AuthProvider";
+import useFirebase from "../../hooks/useFirebase";
 
 const WrapperStyled = styled.div`
   height: 100vh;
@@ -66,7 +69,53 @@ const FormStyled = styled(Form)`
 const ChatWindow = () => {
   const { roomSelected, members, setIsInviteMemberVisible } =
     useContext(RoomContext);
+  // console.log({roomSelected});
+  const { user } = useContext(AuthContext);
+  const { uid, photoURL, displayName } = user;
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef(null);
+  const messageListRef = useRef(null);
+  const [form] = Form.useForm();
+  //
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+  //
+  const handleOnSubmit = () => {
+    addDocument("messages", {
+      uid,
+      text: inputValue,
+      photoURL,
+      displayName,
+      roomId: roomSelected.id,
+    });
+    // reset nội dung ô input
+    form.resetFields(["message"]);
+    // focus vào lại input khi gửi xong tin nhắn
+    if (inputRef?.current) {
+      setTimeout(() => {
+        inputRef.current.focus();
+      });
+    }
+  };
 
+  const messageCondition = useMemo(() => {
+    return {
+      fieldName: "roomId",
+      operator: "==",
+      compareValue: roomSelected.id,
+    };
+  }, [roomSelected.id]);
+
+  // lấy ra những tin nhắn thuộc room hiện tại bằng cách so sánh roomId
+  const messages = useFirebase("messages", messageCondition);
+  // console.log(messages);
+  useEffect(() => {
+    // Cuốn xuống cuối khi tin nhắn thay đổi
+    if (messageListRef?.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight + 50;
+    }
+  }, [messages]);
   return (
     <WrapperStyled>
       {roomSelected.id ? (
@@ -100,42 +149,32 @@ const ChatWindow = () => {
 
           <ContentStyled>
             {/* Hiển thị tin nhắn */}
-            <MessageListStyled>
-              <Message
-                text="Anh đi đâu đấy anh"
-                photoURL={null}
-                displayName="Dũng"
-                createdAt="123456"
-              />
-              <Message
-                text="Anh đi đâu đấy anh"
-                photoURL={null}
-                displayName="Dũng"
-                createdAt="123456"
-              />
-              <Message
-                text="Anh đi đâu đấy anh"
-                photoURL={null}
-                displayName="Dũng"
-                createdAt="123456"
-              />
-              <Message
-                text="Anh đi đâu đấy anh"
-                photoURL={null}
-                displayName="Dũng"
-                createdAt="123456"
-              />
+            <MessageListStyled ref={messageListRef}>
+              {messages?.map((message) => (
+                <Message
+                  key={message.id}
+                  text={message.text}
+                  photoURL={message.photoURL}
+                  displayName={message.displayName}
+                  createdAt={message.createdAt}
+                />
+              ))}
             </MessageListStyled>
             {/* Form gửi tin nhắn */}
-            <FormStyled>
-              <Form.Item>
+            <FormStyled form={form}>
+              <Form.Item name="message">
                 <Input
+                  ref={inputRef}
                   bordered={false}
                   autoComplete="off"
                   placeholder="Nhập tin nhắn..."
+                  onChange={handleInputChange}
+                  onPressEnter={handleOnSubmit}
                 />
               </Form.Item>
-              <Button type="primary">Gửi</Button>
+              <Button type="primary" onClick={handleOnSubmit}>
+                Gửi
+              </Button>
             </FormStyled>
           </ContentStyled>
         </>
