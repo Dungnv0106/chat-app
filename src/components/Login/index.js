@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Row, Col, Typography, Button } from "antd";
 import firebase, { auth, db } from "../../firebase/config";
-import { addDocument } from "../../firebase/services";
+import { addDocument, generateKeywords } from "../../firebase/services";
 const { Title } = Typography;
 
 // tạo 1 nhà cung cấp
@@ -23,6 +23,7 @@ const Login = () => {
         photoURL: user.photoURL,
         uid: user.uid,
         providerId: additionalUserInfo.providerId,
+        keywords: generateKeywords(user.displayName),
       });
     }
   };

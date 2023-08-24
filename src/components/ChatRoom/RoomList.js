@@ -31,21 +31,35 @@ const LinkStyled = styled(Typography.Link)`
 `;
 
 const RoomList = () => {
-  const { rooms, setIsAddRoomVisible } = useContext(RoomContext);
+  const { rooms, setIsAddRoomVisible, selectedRoomId, setSelectedRoomId } =
+    useContext(RoomContext);
+
+  // console.log({ rooms });
   const handleAddRoom = () => {
     setIsAddRoomVisible(true);
-  }
-  // console.log({ rooms });
+  };
   return (
     <Collapse ghost defaultActiveKey={["1"]}>
       <PanelStyled header="Danh sách các phòng" key="1">
         {rooms?.map((room) => {
-          return <LinkStyled key={room.id}>{room.name}</LinkStyled>;
+          return (
+            <LinkStyled
+              key={room.id}
+              onClick={() => setSelectedRoomId(room.id)}
+            >
+              {room.name}
+            </LinkStyled>
+          );
         })}
         {/* <LinkStyled>Room 1</LinkStyled>
         <LinkStyled>Room 2</LinkStyled>
         <LinkStyled>Room 3</LinkStyled> */}
-        <Button type="text" icon={<PlusSquareOutlined />} className="add-room" onClick={handleAddRoom}>
+        <Button
+          type="text"
+          icon={<PlusSquareOutlined />}
+          className="add-room"
+          onClick={handleAddRoom}
+        >
           Thêm phòng
         </Button>
       </PanelStyled>
